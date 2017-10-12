@@ -8,6 +8,7 @@ import java.util.Arrays;
  * 而且是以递归实现的方式，此实现有两个关键点
  * 1.bound 和 constraints 的设置
  * 2.在存储result时从下标0开始，则改成result[t-1]即可
+ * 这种方法（回溯法）将所有能走得通的情况都output了，也就是能走到叶子结点的情况。
  */
 public class backtrack {
 
@@ -19,6 +20,7 @@ public class backtrack {
     private int totalValue;
     private int totalWeight;
     private int maxValue=0;
+    private int currentValue=0;
     private int maxResult[]=new int[getN()];
     public backtrack(){}//默认构造函数
     public int getN(){
@@ -41,6 +43,13 @@ public class backtrack {
         }
         return totalWeight;
     }
+    public int getCurrentValue(int t){
+        currentValue=0;
+        for (int i=0;i<t;i++){
+            currentValue+=result[i]*value[i];
+        }
+        return currentValue;
+    }
     public int getMaxValue(){
         return maxValue;
     }
@@ -62,12 +71,17 @@ public class backtrack {
         else return true;
     }
     public boolean bound(int t){
-        int remain=getCapacity();
-        for (int i=0;i<t;i++){
-            remain=remain-result[i]*weight[i];
+        int bestw=getMaxValue();
+        int c=0;
+        c=getCurrentValue(t);
+        //从t开始到n全部加上<bestw,return false
+        for (int i=t;i<n;i++){
+            c+=value[i];
         }
-        if (remain<0)return false;
-        else return true;
+        if(c<bestw) return false;
+        else{
+            return true;
+        }
     }
     public void fun(int t){
         if(t>n){
@@ -79,7 +93,7 @@ public class backtrack {
                }
         }
         else{
-            for(int i=0;i<=1;i++){
+            for(int i=0;i<=1;++i){
                 result[t-1]=i;
                 if(constraint(t)&&bound(t)) fun(t+1);
             }
